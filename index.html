@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Bee Helper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .setup-section {
+            margin-bottom: 30px;
+        }
+
+        .letter-inputs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .letter-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .letter-input:focus {
+            outline: none;
+            border-color: #f7da21;
+            box-shadow: 0 0 0 3px rgba(247, 218, 33, 0.2);
+        }
+
+        .letter-input.center {
+            background: #f7da21;
+            border-color: #f7da21;
+            font-weight: bold;
+        }
+
+        .label {
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .word-input-section {
+            margin-bottom: 30px;
+        }
+
+        .word-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #wordInput {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+
+        #wordInput:focus {
+            outline: none;
+            border-color: #f7da21;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #f7da21;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #e5c91f;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .progress-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f7da21 0%, #f7b731 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .rank-info {
+            text-align: center;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .words-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .word-text {
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .word-points {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .pangram {
+            background: linear-gradient(135deg, #f7da21 0%, #f7b731 100%);
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #fee;
+            display: none;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .letter-input {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2em;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐝 Spelling Bee Helper</h1>
+        <p class="subtitle">Track your words and progress</p>
+
+        <div class="setup-section">
+            <div class="letter-inputs">
+                <input type="text" class="letter-input" maxlength="1" id="letter0">
+                <input type="text" class="letter-input" maxlength="1" id="letter1">
+                <input type="text" class="letter-input" maxlength="1" id="letter2">
+                <input type="text" class="letter-input center" maxlength="1" id="centerLetter" placeholder="★">
+                <input type="text" class="letter-input" maxlength="1" id="letter3">
+                <input type="text" class="letter-input" maxlength="1" id="letter4">
+                <input type="text" class="letter-input" maxlength="1" id="letter5">
+            </div>
+            <p class="label">Enter the 7 letters (center letter is highlighted)</p>
+        </div>
+
+        <div class="word-input-section">
+            <div class="error-message" id="errorMsg"></div>
+            <div class="word-form">
+                <input type="text" id="wordInput" placeholder="Enter a word...">
+                <button onclick="addWord()">Add Word</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="wordCount">0</div>
+                <div class="stat-label">Words</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pointsCount">0</div>
+                <div class="stat-label">Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pangramCount">0</div>
+                <div class="stat-label">Pangrams</div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar">0%</div>
+            </div>
+            <div class="rank-info" id="rankInfo">Beginner - Keep going!</div>
+        </div>
+
+        <div class="words-list" id="wordsList">
+            <p style="text-align: center; color: #999;">Your words will appear here...</p>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">Reset Game</button>
+    </div>
+
+    <script>
+        const ranks = [
+            { name: 'Beginner', percent: 0 },
+            { name: 'Good Start', percent: 2 },
+            { name: 'Moving Up', percent: 5 },
+            { name: 'Good', percent: 8 },
+            { name: 'Solid', percent: 15 },
+            { name: 'Nice', percent: 25 },
+            { name: 'Great', percent: 40 },
+            { name: 'Amazing', percent: 50 },
+            { name: 'Genius', percent: 70 },
+            { name: 'Queen Bee', percent: 100 }
+        ];
+
+        let gameState = {
+            letters: ['', '', '', '', '', '', ''],
+            centerLetter: '',
+            words: [],
+            totalPoints: 0,
+            maxPoints: 100
+        };
+
+        function loadGame() {
+            const saved = localStorage.getItem('spellingBeeGame');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                
+                // Restore letters
+                for (let i = 0; i < 6; i++) {
+                    document.getElementById(`letter${i}`).value = gameState.letters[i] || '';
+                }
+                document.getElementById('centerLetter').value = gameState.centerLetter || '';
+                
+                updateDisplay();
+            }
+        }
+
+        function saveGame() {
+            localStorage.setItem('spellingBeeGame', JSON.stringify(gameState));
+        }
+
+        // Letter input handling
+        document.querySelectorAll('.letter-input').forEach((input, idx) => {
+            input.addEventListener('input', (e) => {
+                const val = e.target.value.toUpperCase();
+                e.target.value = val;
+                
+                if (input.id === 'centerLetter') {
+                    gameState.centerLetter = val;
+                } else {
+                    const letterIdx = parseInt(input.id.replace('letter', ''));
+                    gameState.letters[letterIdx] = val;
+                }
+                
+                saveGame();
+                
+                // Auto-focus next input
+                if (val && idx < 6) {
+                    const nextInput = document.querySelectorAll('.letter-input')[idx + 1];
+                    if (nextInput) nextInput.focus();
+                }
+            });
+        });
+
+        // Word input handling
+        document.getElementById('wordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addWord();
+            }
+        });
+
+        function showError(msg) {
+            const errorEl = document.getElementById('errorMsg');
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 3000);
+        }
+
+        function addWord() {
+            const input = document.getElementById('wordInput');
+            const word = input.value.trim().toUpperCase();
+            
+            if (!word) return;
+            
+            // Validation
+            if (word.length < 4) {
+                showError('Word must be at least 4 letters!');
+                return;
+            }
+            
+            if (!gameState.centerLetter) {
+                showError('Please set the center letter first!');
+                return;
+            }
+            
+            if (!word.includes(gameState.centerLetter)) {
+                showError('Word must contain the center letter!');
+                return;
+            }
+            
+            const allLetters = [...gameState.letters, gameState.centerLetter].filter(l => l);
+            const invalidLetters = [...word].filter(letter => !allLetters.includes(letter));
+            if (invalidLetters.length > 0) {
+                showError('Word contains invalid letters!');
+                return;
+            }
+            
+            if (gameState.words.some(w => w.word === word)) {
+                showError('Word already added!');
+                return;
+            }
+            
+            // Calculate points
+            const isPangram = allLetters.every(letter => word.includes(letter));
+            let points = word.length === 4 ? 1 : word.length;
+            if (isPangram) points += 7;
+            
+            // Add word
+            gameState.words.push({ word, points, isPangram });
+            gameState.totalPoints += points;
+            
+            input.value = '';
+            saveGame();
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            // Update stats
+            document.getElementById('wordCount').textContent = gameState.words.length;
+            document.getElementById('pointsCount').textContent = gameState.totalPoints;
+            document.getElementById('pangramCount').textContent = 
+                gameState.words.filter(w => w.isPangram).length;
+            
+            // Update progress
+            const percent = gameState.maxPoints > 0 
+                ? Math.min(100, (gameState.totalPoints / gameState.maxPoints) * 100)
+                : 0;
+            
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressBar').textContent = Math.round(percent) + '%';
+            
+            // Update rank
+            let currentRank = ranks[0];
+            for (let rank of ranks) {
+                if (percent >= rank.percent) {
+                    currentRank = rank;
+                }
+            }
+            document.getElementById('rankInfo').textContent = 
+                `${currentRank.name} - ${Math.round(percent)}% complete`;
+            
+            // Update words list
+            const listEl = document.getElementById('wordsList');
+            if (gameState.words.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center; color: #999;">Your words will appear here...</p>';
+            } else {
+                listEl.innerHTML = gameState.words
+                    .sort((a, b) => b.points - a.points)
+                    .map(w => `
+                        <div class="word-item ${w.isPangram ? 'pangram' : ''}">
+                            <span class="word-text">${w.word}</span>
+                            <span class="word-points">${w.points} pts${w.isPangram ? ' 🌟' : ''}</span>
+                        </div>
+                    `).join('');
+            }
+        }
+
+        function resetGame() {
+            if (confirm('Are you sure you want to reset the game? This will clear all your progress.')) {
+                gameState = {
+                    letters: ['', '', '', '', '', '', ''],
+                    centerLetter: '',
+                    words: [],
+                    totalPoints: 0,
+                    maxPoints: 100
+                };
+                
+                document.querySelectorAll('.letter-input').forEach(input => input.value = '');
+                document.getElementById('wordInput').value = '';
+                
+                saveGame();
+                updateDisplay();
+            }
+        }
+
+        // Initialize
+        loadGame();
+    </script>
+</body>
+</html>
